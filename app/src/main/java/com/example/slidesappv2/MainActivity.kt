@@ -13,7 +13,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Selector(WeakReference(this)).selectPDF()
+        findViewById<Button>(R.id.button).setOnClickListener{
+            Selector(WeakReference(this), it).selectPDF()
+        }
+        //example3()
 //        Downloader(WeakReference(this)).execute()
 //        requestWebsiteText(studRes)
         //Downloader().requestWebsiteText("https://studres.cs.st-andrews.ac.uk", this)
@@ -28,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         // snackbar without action
         findViewById<Button>(R.id.button).setOnClickListener{
             view -> run {
-                showSnackbar(view, "my snackbar", null, null)
+                showSnackbar(view, "my snackbar", null, null, null)
             }
         }
     }
@@ -36,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     private fun example3() {
         // snackbar with action, also "it"
         findViewById<Button>(R.id.button).setOnClickListener{
-            showSnackbar(it, "my snackbar with action", "display my toast", View.OnClickListener {
+            showSnackbar(it, "my snackbar with action",null, "display my toast", View.OnClickListener {
                 showToast("you displayed me")
             })
         }
@@ -48,9 +51,9 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    internal fun showSnackbar(view: View, title: String, actionTitle: String?, listener: View.OnClickListener?) {
+    internal fun showSnackbar(view: View, title: String, duration: Int?, actionTitle: String?, listener: View.OnClickListener?) {
         Snackbar
-            .make(view, title, Snackbar.LENGTH_LONG)
+            .make(view, title, duration ?: Snackbar.LENGTH_LONG)
             .setAction(actionTitle, listener)
             .show()
     }

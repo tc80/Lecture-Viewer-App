@@ -1,19 +1,18 @@
 package com.example.slidesappv2
 
 import android.app.AlertDialog
-import android.content.DialogInterface
-import android.os.AsyncTask
+import android.content.Intent
+import android.net.Uri
+import android.view.View
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.material.snackbar.Snackbar
 import java.lang.ref.WeakReference
+import java.net.URI
 
-//import com.example.slidesappv2.MainActivity
-
-
-
-class Selector(private val mainActivity: WeakReference<MainActivity>) {
+class Selector(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
 
     private val studRes = "https://studres.cs.st-andrews.ac.uk/"
     private val moduleRegex = Regex("\"\\w{2}\\d{4}\"") // "WWDDDD" - ex. CS3301
@@ -25,16 +24,16 @@ class Selector(private val mainActivity: WeakReference<MainActivity>) {
         selectModule(studRes)
     }
 
-    private fun selectModule(url: String) {
+    private fun selectModule(modulesUrl: String) {
         alertDialog.setTitle("Select a Module")
         val stringRequest = StringRequest(
             Request.Method.GET,
-            url,
+            modulesUrl,
             Response.Listener<String> { res ->
                 val matches = moduleRegex.findAll(res).map { it.value.trim('\"') }
                 val array = sequenceToArray(matches)
                 alertDialog.setItems(array) { _, which ->
-                    val lecturesUrl = url + array[which].toString() + "/Lectures/"
+                    val lecturesUrl = modulesUrl + array[which] + "/Lectures/"
                     selectLecture(lecturesUrl)
                 }
                 alertDialog.show()
@@ -47,11 +46,11 @@ class Selector(private val mainActivity: WeakReference<MainActivity>) {
     }
 
     // note will only look within Lectures/, not recursively in file system
-    private fun selectLecture(url: String) {
+    private fun selectLecture(lecturesUrl: String) {
         alertDialog.setTitle("Select a Lecture")
         val stringRequest = StringRequest(
             Request.Method.GET,
-            url,
+            lecturesUrl,
             Response.Listener<String> { res ->
                 val matches = lectureRegex.findAll(res).map { it.value.trim('\"') }
                 val array = sequenceToArray(matches)
@@ -60,7 +59,13 @@ class Selector(private val mainActivity: WeakReference<MainActivity>) {
                     return@Listener
                 }
                 alertDialog.setItems(array) { _, which ->
-                    mainActivity.get()?.showToast(array[which].toString())
+                    val selected = array[which]
+                    val pdfURL = lecturesUrl + selected
+                    mainActivity.get()?.showSnackbar(view, "Selected: $selected", 5000,
+                        "VIEW IN BROWSER", View.OnClickListener {
+                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(pdfURL))
+                            mainActivity.get()?.startActivity(browserIntent)
+                    })
                 }
                 alertDialog.show()
             },
