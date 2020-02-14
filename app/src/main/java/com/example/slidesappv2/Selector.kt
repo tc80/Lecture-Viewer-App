@@ -8,23 +8,15 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.google.android.material.snackbar.Snackbar
 import java.lang.ref.WeakReference
-import java.net.URI
-
 class Selector(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
 
-    private val studRes = "https://studres.cs.st-andrews.ac.uk/"
     private val moduleRegex = Regex("\"\\w{2}\\d{4}\"") // "WWDDDD" - ex. CS3301
     private val lectureRegex = Regex("\"(\\w|\\d|\\s|\\(|\\)|_|-)*.pdf\"") // "(W|D|S)*.pdf" - ex. L02-Android.pdf
     private lateinit var alertDialog: AlertDialog.Builder
 
-    fun selectPDF() {
+    internal fun selectModule(modulesUrl: String) {
         alertDialog = AlertDialog.Builder(mainActivity.get())
-        selectModule(studRes)
-    }
-
-    private fun selectModule(modulesUrl: String) {
         alertDialog.setTitle("Select a Module")
         val stringRequest = StringRequest(
             Request.Method.GET,
@@ -39,7 +31,7 @@ class Selector(private val mainActivity: WeakReference<MainActivity>, private va
                 alertDialog.show()
             },
             Response.ErrorListener {
-                mainActivity.get()?.showToast(it.toString())
+                mainActivity.get()?.showToast("Failed to load modules: $it")
             }
         )
         Volley.newRequestQueue(mainActivity.get()).add(stringRequest)
@@ -70,7 +62,7 @@ class Selector(private val mainActivity: WeakReference<MainActivity>, private va
                 alertDialog.show()
             },
             Response.ErrorListener {
-                mainActivity.get()?.showToast(it.toString())
+                mainActivity.get()?.showToast("Failed to load lectures: $it")
             }
         )
         Volley.newRequestQueue(mainActivity.get()).add(stringRequest)
@@ -78,7 +70,7 @@ class Selector(private val mainActivity: WeakReference<MainActivity>, private va
     }
 
     // tried generics but Array<T> is not allowed
-    fun sequenceToArray(sequence: Sequence<String>): Array<CharSequence?> {
+    private fun sequenceToArray(sequence: Sequence<String>): Array<CharSequence?> {
         val list = ArrayList<CharSequence>()
         list.addAll(sequence)
         val array = arrayOfNulls<CharSequence>(list.size)

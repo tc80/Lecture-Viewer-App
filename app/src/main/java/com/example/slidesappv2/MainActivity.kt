@@ -10,11 +10,13 @@ import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
+    private val studRes = "https://studres.cs.st-andrews.ac.uk/"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<Button>(R.id.button).setOnClickListener{
-            Selector(WeakReference(this), it).selectPDF()
+            Selector(WeakReference(this), it).selectModule(studRes)
         }
         //example3()
 //        Downloader(WeakReference(this)).execute()
