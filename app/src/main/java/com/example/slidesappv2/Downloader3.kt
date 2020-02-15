@@ -1,0 +1,44 @@
+package com.example.slidesappv2
+
+import android.app.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.Uri
+import android.view.View
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import java.lang.ref.WeakReference
+import android.graphics.Color
+import androidx.core.content.ContextCompat.getSystemService
+
+
+
+
+class Downloader3(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
+
+    internal fun downloadPDF(url: String, title: String) {
+        val request = DownloadManager.Request(Uri.parse(url))
+            .setTitle(title)
+        val manager = mainActivity.get()?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val id = manager.enqueue(request)
+
+        val broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val uri = manager.getUriForDownloadedFile(id)
+                val readFileIntent = Intent(Intent.ACTION_VIEW)
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    .setDataAndType(uri, "application/pdf")
+                val pIntent = PendingIntent.getActivity(mainActivity.get(), 0, readFileIntent, 0)
+                mainActivity.get()?.showNotification(
+                    "Download Complete!",
+                    "$title has been downloaded from $url and is now located at $uri.",
+                    "View Download", pIntent)
+            }
+        }
+
+        mainActivity.get()?.registerReceiver(broadcastReceiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+    }
+
+}

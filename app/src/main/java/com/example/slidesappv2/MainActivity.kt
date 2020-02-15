@@ -1,12 +1,27 @@
 package com.example.slidesappv2
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import com.google.android.material.snackbar.Snackbar
 import java.lang.ref.WeakReference
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.net.Uri
+import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,7 +31,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<Button>(R.id.button).setOnClickListener{
-            Selector(WeakReference(this), it).selectModule(studRes)
+            Selector(this, it).selectModule(studRes)
+           // Downloader3(WeakReference(this), it).downloadPDF("https://studres.cs.st-andrews.ac.uk/CS3301/Lectures/L03-large-scale-design.pdf", "hello")
         }
         //example3()
 //        Downloader(WeakReference(this)).execute()
@@ -47,6 +63,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun example4() {
+        findViewById<Button>(R.id.button).setOnClickListener{
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://google.com"))
+            val pIntent = PendingIntent.getActivity(this, 0, intent, 0)
+            showNotification("Example 4", "Navigate to Google!", "Click me", pIntent)
+        }
+    }
+
     internal fun showToast(text: String) {
         Toast
             .makeText(applicationContext, text, Toast.LENGTH_LONG)
@@ -58,6 +82,30 @@ class MainActivity : AppCompatActivity() {
             .make(view, title, duration ?: Snackbar.LENGTH_LONG)
             .setAction(actionTitle, listener)
             .show()
+    }
+
+    internal fun showNotification(title: String?, body: String?, actionTitle: String?, pIntent: PendingIntent) {
+        val nManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelID = "my_channel_id"
+        val channelName = "my channel"
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        val myChannel = nManager.getNotificationChannel(channelID)
+            ?: NotificationChannel(channelID, channelName, importance)
+        nManager.createNotificationChannel(myChannel)
+        val notification = NotificationCompat.Builder(this, channelID)
+            .setSmallIcon(R.drawable.example_notification_icon)
+            .setAutoCancel(true)
+            .addAction(NotificationCompat.Action(R.drawable.example_notification_icon, actionTitle, pIntent))
+            .setStyle(NotificationCompat.BigTextStyle()
+                .setBigContentTitle(title)
+                .bigText(body)
+            )
+            .build()
+        nManager.notify(generateID(), notification)
+    }
+
+    private fun generateID(): Int {
+        return (Date().time / 1000).toInt() % Int.MAX_VALUE
     }
 
 }
