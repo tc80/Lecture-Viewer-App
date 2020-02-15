@@ -3,6 +3,7 @@ package com.example.slidesappv2
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
@@ -26,83 +27,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-//       val scrollPane = findViewById<HorizontalScrollView>(R.id.scroll)
-//
-//        val options = LinearLayout(this)
-//
-//        for (i in 0..19) {
-////            val b = Button(this)
-////            b.text = "Button $i"
-////            b.setOnClickListener {
-////                showToast(i.toString())
-////            }
-//            val imageView = ImageView(this)
-//            imageView.id = i
-//            imageView.setPadding(10, 10, 10, 10)
-//            imageView.adjustViewBounds = true
-//            imageView.setBackgroundColor(Color.RED)
-//            imageView.setImageResource(R.drawable.example_notification_icon)
-////            imageView.setImageBitmap(
-////                BitmapFactory.decodeResource(
-////                    resources, R.drawable.example_notification_icon
-////                )
-////            )
-//            //imageView.scaleType = ImageView.ScaleType.FIT_XY
-//            imageView.setOnClickListener {
-//                showToast(i.toString())
-//            }
-//            options.addView(imageView)
-//        }
-//
-//        scrollPane.addView(options)
-
-//        val myScrollView = findViewById<HorizontalScrollView>(R.id.scroll)
-//        val myLinearLayout = findViewById<LinearLayout>(R.id.linear)
-//
-//        for (i in 0..19) {
-//            val b = Button(this)
-//            b.text = "Button $i"
-//            myLinearLayout.addView(b)
-//        }
-//
-//        myScrollView.addView(myLinearLayout)
-
-       // myLinearLayout.addView(options)
-
-//        val layout = findViewById<LinearLayout>(R.id.linear)
-//        layout.orientation = LinearLayout.HORIZONTAL
-//        val a = LinearLayout(this)
-//        a.orientation = LinearLayout.HORIZONTAL
-//        for (i in 0..5) {
-//            val imageView = ImageView(this)
-//            imageView.id = i
-//            imageView.setPadding(2, 2, 2, 2)
-//            imageView.setImageBitmap(
-//                BitmapFactory.decodeResource(
-//                    resources, R.drawable.example_notification_icon
-//                )
-//            )
-//            imageView.scaleType = ScaleType.FIT_XY
-//            a.addView(imageView)
-//        }
-//        layout.addView(a)
-//        val scroll = findViewById<HorizontalScrollView>(R.id.scroll)
-//        scroll.addView(a)
-//        layout.setBackgroundColor(Color.RED)
-//
-//        //layout.visibility = View.VISIBLE
-//
-//        showToast(layout.width.toString())
-//
-//        layout.setOnClickListener {
-////            exitProcess(1)
-//        }
-
-//        val list = findViewById<RecyclerView>(R.id.my_recycler)
-//        list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-//        list.adapter = RecyclerView.Adapter<RecyclerView.ViewHolder>()
-
 
         val btn = findViewById<Button>(R.id.button2)
         btn.setOnClickListener {

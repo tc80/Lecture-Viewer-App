@@ -12,33 +12,44 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.recyclerview.widget.RecyclerView
+import java.lang.ref.WeakReference
+import android.R.attr.button
 
-class Renderer(private val mainActivity: MainActivity, private val view: View) {
+
+
+class Renderer(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
 
     private val unselected = -1
     private val undo = "UNDO"
 
     internal fun render(parcelFileDescriptor: ParcelFileDescriptor) {
+
+        val logo = mainActivity.get()?.findViewById<ImageView>(R.id.logo)
+        val parent = logo?.parent as ViewGroup?
+        parent?.removeView(logo)
+
         val renderer = PdfRenderer(parcelFileDescriptor)
-        val scrollPane = mainActivity.findViewById<HorizontalScrollView>(R.id.scroll)
-        val options = LinearLayout(mainActivity)
+        val scrollPane = mainActivity.get()?.findViewById<HorizontalScrollView>(R.id.scroll)!!
+        val options = LinearLayout(mainActivity.get())
         val pageCount = renderer.pageCount
         val images = ArrayList<ImageView>()
         var indexSelected = unselected
 
         for (i in 0 until pageCount) {
             val page = renderer.openPage(i)
-            val imageView = ImageView(mainActivity)
+            val imageView = ImageView(mainActivity.get())
             imageView.id = i
             imageView.setPadding(10, 0, 10, 0)
 
-            val width = if (page.width == 0) 1 else page.width
-            val height = if (page.height == 0) 1 else page.height
-            val scale = (scrollPane.width.toDouble() / width).coerceAtMost(scrollPane.height.toDouble() / height)
+            if (page.width == 0 || page.height == 0 || scrollPane.width == 0 || scrollPane.height == 0) {
+                continue // ignore
+            }
+
+            val scale = (scrollPane.width.toDouble() / page.width).coerceAtMost(scrollPane.height.toDouble() / page.height)
 
             val bitmap = Bitmap.createBitmap(
-                (width * scale).toInt(),
-                (height * scale).toInt(),
+                (page.width * scale).toInt(),
+                (page.height * scale).toInt(),
                 Bitmap.Config.ARGB_8888
             )
 
@@ -56,7 +67,7 @@ class Renderer(private val mainActivity: MainActivity, private val view: View) {
                     // already selected, deselect
                     indexSelected = unselected
                     deselectImage(imageView)
-                    mainActivity.showSnackbar(view, "Deselected slide $i.", null, undo,
+                    mainActivity.get()?.showSnackbar(view, "Deselected slide $i.", null, undo,
                         View.OnClickListener {
                             selectImage(imageView)
                             indexSelected = tempIndex
@@ -69,7 +80,7 @@ class Renderer(private val mainActivity: MainActivity, private val view: View) {
                 }
                 indexSelected = i
                 selectImage(imageView)
-                mainActivity.showSnackbar(view, "Selected slide $i.", null, undo,
+                mainActivity.get()?.showSnackbar(view, "Selected slide $i.", null, undo,
                     View.OnClickListener {
                         deselectImage(imageView)
                         indexSelected = tempIndex

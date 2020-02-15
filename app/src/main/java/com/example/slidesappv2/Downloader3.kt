@@ -56,7 +56,7 @@ class Downloader3(private val mainActivity: WeakReference<MainActivity>, private
                     return
                 }
 
-                Renderer(mainActivity.get()!!, view).render(parcelFileDescriptor)
+                Renderer(mainActivity, view).render(parcelFileDescriptor)
 
 //                        val renderer = PdfRenderer(parcelFileDescriptor)
 //                        mainActivity.get()?.showToast("PAGE COUNT IS " + renderer.pageCount.toString())
