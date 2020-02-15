@@ -23,11 +23,8 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
     private val undo = "UNDO"
 
     internal fun render(parcelFileDescriptor: ParcelFileDescriptor) {
-
-        val logo = mainActivity.get()?.findViewById<ImageView>(R.id.logo)
-        val parent = logo?.parent as ViewGroup?
-        parent?.removeView(logo)
-
+        mainActivity.get()?.activateResetButton()
+        mainActivity.get()?.hideLogo()
         val renderer = PdfRenderer(parcelFileDescriptor)
         val scrollPane = mainActivity.get()?.findViewById<HorizontalScrollView>(R.id.scroll)!!
         val options = LinearLayout(mainActivity.get())
@@ -45,14 +42,10 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
                 continue // ignore
             }
 
+            var bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
             val scale = (scrollPane.width.toDouble() / page.width).coerceAtMost(scrollPane.height.toDouble() / page.height)
 
-            val bitmap = Bitmap.createBitmap(
-                (page.width * scale).toInt(),
-                (page.height * scale).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
-
+            bitmap = Bitmap.createScaledBitmap(bitmap, (scale * page.width).toInt(), (scale * page.height).toInt(), true)
             page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
 
             imageView.setImageBitmap(bitmap)
@@ -66,10 +59,10 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
                 if (indexSelected == i) {
                     // already selected, deselect
                     indexSelected = unselected
-                    deselectImage(imageView)
+                    Selector.deselectImage(imageView, mainActivity)
                     mainActivity.get()?.showSnackbar(view, "Deselected slide $i.", null, undo,
                         View.OnClickListener {
-                            selectImage(imageView)
+                            Selector.selectImage(imageView, mainActivity)
                             indexSelected = tempIndex
                         }
                     )
@@ -79,13 +72,13 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
                     images[indexSelected].clearColorFilter() // clear previous selection
                 }
                 indexSelected = i
-                selectImage(imageView)
+                Selector.selectImage(imageView, mainActivity)
                 mainActivity.get()?.showSnackbar(view, "Selected slide $i.", null, undo,
                     View.OnClickListener {
-                        deselectImage(imageView)
+                        Selector.deselectImage(imageView, mainActivity)
                         indexSelected = tempIndex
                         if (indexSelected != unselected) {
-                            selectImage(images[indexSelected])
+                            Selector.selectImage(images[indexSelected], mainActivity)
                         }
                     }
                 )
@@ -98,16 +91,5 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
         scrollPane.scrollTo(0, 0) // reset to beginning
         scrollPane.invalidate()
     }
-
-    private fun selectImage(imageView: ImageView) {
-        imageView.setColorFilter(Color.LTGRAY, PorterDuff.Mode.DARKEN)
-        imageView.invalidate()
-    }
-
-    private fun deselectImage(imageView: ImageView) {
-        imageView.clearColorFilter()
-        imageView.invalidate()
-    }
-
 
 }

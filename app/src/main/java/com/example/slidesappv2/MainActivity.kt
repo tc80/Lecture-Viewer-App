@@ -3,9 +3,6 @@ package com.example.slidesappv2
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
-import android.graphics.BitmapFactory
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -14,10 +11,7 @@ import com.google.android.material.snackbar.Snackbar
 import android.net.Uri
 import java.util.*
 import android.widget.*
-import android.widget.LinearLayout
-import android.widget.ScrollView
-
-
+import kotlinx.android.synthetic.main.activity_main.view.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,32 +21,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val btn = findViewById<Button>(R.id.button2)
-        btn.setOnClickListener {
-           example1()
+        findViewById<Button>(R.id.hide_ads).setOnClickListener{
+            showToast("no")
         }
-        findViewById<Button>(R.id.button).setOnClickListener{
-
-            // button to view all downloads
-            // Intent(DownloadManager.ACTION_VIEW_DOWNLOADS)
-            // startActivity(intent)
-
-
-//            val pickContactIntent = Intent(Intent.ACTION_PICK).apply {
-//                // Show user only the contacts that include phone numbers.
-//                setDataAndType(
-//                    Uri.parse("content://downloads/all_downloads/37"),
-//                    "application/pdf"
-//                )
-//            }
-//
-//            startActivity(pickContactIntent)
-
-
+        findViewById<Button>(R.id.select_lecture).setOnClickListener{
             Selector(this, it).selectModule(studRes)
-          // Downloader3(WeakReference(this), it).downloadPDF("https://studres.cs.st-andrews.ac.uk/CS3301/Lectures/L03-large-scale-design.pdf", "hello")
         }
+        val reset = findViewById<Button>(R.id.reset)
+        reset.setOnClickListener{
+            val scroll = findViewById<HorizontalScrollView>(R.id.scroll)
+            scroll.removeAllViews()
+            scroll.invalidate()
+            showLogo()
+            deactivateResetButton()
+            deactivateShareButton()
+        }
+        deactivateResetButton()
+        deactivateShareButton()
     }
 
     private fun example1() {
@@ -62,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun example2() {
         // snackbar without action
-        findViewById<Button>(R.id.button).setOnClickListener{
+        findViewById<Button>(R.id.select_lecture).setOnClickListener{
             view -> run {
                 showSnackbar(view, "my snackbar", null, null, null)
             }
@@ -71,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun example3() {
         // snackbar with action, also "it"
-        findViewById<Button>(R.id.button).setOnClickListener{
+        findViewById<Button>(R.id.select_lecture).setOnClickListener{
             showSnackbar(it, "my snackbar with action",null, "display my toast", View.OnClickListener {
                 showToast("you displayed me")
             })
@@ -79,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun example4() {
-        findViewById<Button>(R.id.button).setOnClickListener{
+        findViewById<Button>(R.id.select_lecture).setOnClickListener{
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://google.com"))
             val pIntent = PendingIntent.getActivity(this, 0, intent, 0)
             showNotification("Example 4", "Navigate to Google!", "Click me", pIntent)
@@ -117,6 +102,36 @@ class MainActivity : AppCompatActivity() {
             )
             .build()
         nManager.notify(generateID(), notification)
+    }
+
+    internal fun activateShareButton(imageView: ImageView) {
+        val btn = findViewById<Button>(R.id.share_slide)
+        btn.setOnClickListener{
+            showToast(imageView.toString())
+        }
+        btn.isEnabled = true
+    }
+
+    internal fun hideLogo() {
+        findViewById<ImageView>(R.id.logo).visibility = ImageView.INVISIBLE
+    }
+
+    internal fun showLogo() {
+        findViewById<ImageView>(R.id.logo).visibility = ImageView.VISIBLE
+    }
+
+    internal fun deactivateShareButton() {
+        findViewById<Button>(R.id.share_slide).isEnabled = false
+    }
+
+    internal fun activateResetButton() {
+        val btn = findViewById<Button>(R.id.reset)
+        btn.isEnabled = true
+    }
+
+    private fun deactivateResetButton() {
+        val btn = findViewById<Button>(R.id.reset)
+        btn.isEnabled = false
     }
 
     private fun generateID(): Int {

@@ -2,10 +2,12 @@ package com.example.slidesappv2
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.net.Uri
 import android.view.View
 import android.widget.Button
-import androidx.core.view.isInvisible
+import android.widget.ImageView
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -57,7 +59,7 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
                     val selected = array[which]
                     val pdfURL = lecturesUrl + selected
 
-                    Downloader3(WeakReference(mainActivity), view).downloadPDF(pdfURL, selected.toString())
+                    Downloader(WeakReference(mainActivity), view).downloadPDF(pdfURL, selected.toString())
 
                     mainActivity.showSnackbar(view, "Selected: $selected", 5000,
                         "VIEW IN BROWSER", View.OnClickListener {
@@ -72,6 +74,22 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
             }
         )
         Volley.newRequestQueue(mainActivity).add(stringRequest)
+
+    }
+
+    companion object {
+
+        internal fun selectImage(imageView: ImageView, mainActivity: WeakReference<MainActivity>) {
+            mainActivity.get()?.activateShareButton(imageView)
+            imageView.setColorFilter(Color.LTGRAY, PorterDuff.Mode.DARKEN)
+            imageView.invalidate()
+        }
+
+        internal fun deselectImage(imageView: ImageView, mainActivity: WeakReference<MainActivity>) {
+            mainActivity.get()?.deactivateShareButton()
+            imageView.clearColorFilter()
+            imageView.invalidate()
+        }
 
     }
 
