@@ -1,9 +1,6 @@
 package com.example.slidesappv2
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -31,13 +28,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<Button>(R.id.button).setOnClickListener{
+
+            // button to view all downloads
+            // Intent(DownloadManager.ACTION_VIEW_DOWNLOADS)
+            // startActivity(intent)
+
+
+//            val pickContactIntent = Intent(Intent.ACTION_PICK).apply {
+//                // Show user only the contacts that include phone numbers.
+//                setDataAndType(
+//                    Uri.parse("content://downloads/all_downloads/37"),
+//                    "application/pdf"
+//                )
+//            }
+//
+//            startActivity(pickContactIntent)
+
+
             Selector(this, it).selectModule(studRes)
-           // Downloader3(WeakReference(this), it).downloadPDF("https://studres.cs.st-andrews.ac.uk/CS3301/Lectures/L03-large-scale-design.pdf", "hello")
+          // Downloader3(WeakReference(this), it).downloadPDF("https://studres.cs.st-andrews.ac.uk/CS3301/Lectures/L03-large-scale-design.pdf", "hello")
         }
-        //example3()
-//        Downloader(WeakReference(this)).execute()
-//        requestWebsiteText(studRes)
-        //Downloader().requestWebsiteText("https://studres.cs.st-andrews.ac.uk", this)
     }
 
     private fun example1() {

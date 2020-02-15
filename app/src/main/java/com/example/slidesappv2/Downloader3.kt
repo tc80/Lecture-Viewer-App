@@ -11,7 +11,15 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import java.lang.ref.WeakReference
 import android.graphics.Color
+import android.graphics.pdf.PdfRenderer
+import android.os.Environment
+import android.os.ParcelFileDescriptor
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.net.toFile
+import java.io.File
+import java.io.FileDescriptor
+import java.net.URI
+import android.R.attr.data
 
 
 
@@ -33,8 +41,20 @@ class Downloader3(private val mainActivity: WeakReference<MainActivity>, private
                 val pIntent = PendingIntent.getActivity(mainActivity.get(), 0, readFileIntent, 0)
                 mainActivity.get()?.showNotification(
                     "Download Complete!",
-                    "$title has been downloaded from $url and is now located at $uri.",
+                    "$title has been downloaded from $url.",
                     "View Download", pIntent)
+
+                val parcelFileDescriptor = mainActivity.get()?.contentResolver?.openFileDescriptor(uri, "r")
+
+                if (parcelFileDescriptor == null) {
+                    mainActivity.get()?.showToast("Cannot find download $title.")
+                    return
+                }
+
+                val renderer = PdfRenderer(parcelFileDescriptor)
+                mainActivity.get()?.showToast("PAGE COUNT IS " + renderer.pageCount.toString())
+
+
             }
         }
 

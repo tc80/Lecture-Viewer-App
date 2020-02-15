@@ -56,11 +56,6 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
                 alertDialog.setItems(array) { _, which ->
                     val selected = array[which]
                     val pdfURL = lecturesUrl + selected
-                    val btn = mainActivity.findViewById<Button>(R.id.button)
-                    //btn.isClickable = false
-                    btn.setOnClickListener{
-                        //
-                    }
 
                     Downloader3(WeakReference(mainActivity), view).downloadPDF(pdfURL, selected.toString())
 
