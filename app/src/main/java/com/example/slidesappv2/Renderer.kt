@@ -39,6 +39,7 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
             imageView.setPadding(10, 0, 10, 0)
 
             if (page.width == 0 || page.height == 0 || scrollPane.width == 0 || scrollPane.height == 0) {
+                mainActivity.get()?.showToast("Slide $i is invalid, skipping....")
                 continue // ignore
             }
 
@@ -60,7 +61,7 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
                     // already selected, deselect
                     indexSelected = unselected
                     Selector.deselectImage(imageView, mainActivity)
-                    mainActivity.get()?.showSnackbar(view, "Deselected slide $i.", null, undo,
+                    mainActivity.get()?.showSnackbar(view, "Deselected slide ${i+1}.", null, undo,
                         View.OnClickListener {
                             Selector.selectImage(imageView, mainActivity)
                             indexSelected = tempIndex
@@ -73,7 +74,7 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
                 }
                 indexSelected = i
                 Selector.selectImage(imageView, mainActivity)
-                mainActivity.get()?.showSnackbar(view, "Selected slide $i.", null, undo,
+                mainActivity.get()?.showSnackbar(view, "Selected slide ${i+1}.", null, undo,
                     View.OnClickListener {
                         Selector.deselectImage(imageView, mainActivity)
                         indexSelected = tempIndex

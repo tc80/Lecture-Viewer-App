@@ -75,4 +75,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <LinearLayout
+        android:layout_width="76dp"
+        android:layout_height="26dp"
+        android:layout_marginTop="16dp"
+        android:background="#22A9A9A9"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.049"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/money"
+            android:layout_width="34dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3.5dp"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="100" />
+
+        <ImageView
+            android:id="@+id/coins_image"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            app:srcCompat="@drawable/coins" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

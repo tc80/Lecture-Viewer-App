@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.logo).visibility = ImageView.INVISIBLE
     }
 
-    internal fun showLogo() {
+    private fun showLogo() {
         findViewById<ImageView>(R.id.logo).visibility = ImageView.VISIBLE
     }
 

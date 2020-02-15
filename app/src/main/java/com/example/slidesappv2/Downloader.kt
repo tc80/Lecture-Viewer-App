@@ -7,26 +7,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.view.View
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import java.lang.ref.WeakReference
-import android.graphics.Color
-import android.graphics.pdf.PdfRenderer
-import android.os.Environment
-import android.os.ParcelFileDescriptor
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.net.toFile
-import java.io.File
-import java.io.FileDescriptor
-import java.net.URI
-import android.R.attr.data
-import android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
-import android.graphics.Bitmap
-import android.graphics.Rect
-import android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_PRINT
-import android.opengl.ETC1.getHeight
-import android.opengl.ETC1.getWidth
-import android.widget.ImageView
+import android.app.DownloadManager
+import android.R.string.no
+
 
 
 class Downloader(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
@@ -36,6 +20,38 @@ class Downloader(private val mainActivity: WeakReference<MainActivity>, private 
             .setTitle(title)
         val manager = mainActivity.get()?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val id = manager.enqueue(request)
+
+//        val query = DownloadManager.Query()
+//        query.setFilterById(id)
+//
+//        Thread.sleep(1000)
+//        val c = manager.query(query)
+//        if (c.moveToFirst()) {
+//            val sizeIndex = c.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+//            val downloadedIndex = c.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+//            val size = c.getInt(sizeIndex)
+//            val downloaded = c.getInt(downloadedIndex)
+//            var progress = 0.0
+//            if (size != -1) progress = downloaded * 100.0 / size
+//            println(sizeIndex)
+//            println(downloadedIndex)
+//            println(size)
+//            println(downloaded)
+//            println(progress)
+//            // At this point you have the progress as a percentage.
+//            mainActivity.get()?.showToast(progress.toString())
+//        } else {
+//            mainActivity.get()?.showToast("sad")
+//        }
+
+//        val query = DownloadManager.Query()
+//        query.setFilterByStatus(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+//
+////        query.
+////            // progress bar async
+////        manager.query(DownloadManager.Query(
+////
+////        ))
 
         val broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
