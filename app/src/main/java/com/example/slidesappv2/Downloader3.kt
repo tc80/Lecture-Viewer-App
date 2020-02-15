@@ -20,8 +20,13 @@ import java.io.File
 import java.io.FileDescriptor
 import java.net.URI
 import android.R.attr.data
-
-
+import android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+import android.graphics.Bitmap
+import android.graphics.Rect
+import android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_PRINT
+import android.opengl.ETC1.getHeight
+import android.opengl.ETC1.getWidth
+import android.widget.ImageView
 
 
 class Downloader3(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
@@ -51,8 +56,43 @@ class Downloader3(private val mainActivity: WeakReference<MainActivity>, private
                     return
                 }
 
-                val renderer = PdfRenderer(parcelFileDescriptor)
-                mainActivity.get()?.showToast("PAGE COUNT IS " + renderer.pageCount.toString())
+                Renderer(mainActivity.get()!!, view).render(parcelFileDescriptor)
+
+//                        val renderer = PdfRenderer(parcelFileDescriptor)
+//                        mainActivity.get()?.showToast("PAGE COUNT IS " + renderer.pageCount.toString())
+//                        val pageCount = renderer.pageCount
+//
+//                        //val imageView = mainActivity.get()?.findViewById<ImageView>(R.id.my_pdf)
+//
+//                        val imageView = ImageView(mainActivity.get())
+//
+//                        val bitmap = Bitmap.createBitmap(imageView.width, imageView.height, Bitmap.Config.ARGB_4444)
+//
+//                        val matrix = imageView.imageMatrix
+//                        val rect = Rect(0, 0, imageView.width, imageView.height)
+//
+//                        renderer.openPage(0).render(bitmap, rect, matrix, RENDER_MODE_FOR_PRINT);
+//
+//                        imageView.imageMatrix = matrix;
+//                        imageView.setImageBitmap(bitmap);
+//                        imageView.invalidate();
+
+                //renderer.close();
+
+//                for (i in 0..pageCount) {
+//                    val page = renderer.openPage(i)
+//
+//                    // say we render for showing on the screen
+//                    page.render(mBitmap, null, null, Page.RENDER_MODE_FOR_DISPLAY)
+//
+//                    // do stuff with the bitmap
+//
+//                    // close the page
+//                    page.close()
+//                }
+//
+//                // close the renderer
+//                renderer.close()
 
 
             }

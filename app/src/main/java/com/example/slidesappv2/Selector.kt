@@ -15,7 +15,7 @@ import java.lang.ref.WeakReference
 class Selector(private val mainActivity: MainActivity, private val view: View) {
 
     private val moduleRegex = Regex("\"\\w{2}\\d{4}\"") // "WWDDDD" - ex. CS3301
-    private val lectureRegex = Regex("\"(\\w|\\d|\\s|\\(|\\)|_|-)*.pdf\"") // "(W|D|S)*.pdf" - ex. L02-Android.pdf
+    private val lectureRegex = Regex("\"(\\w|\\d|\\s|\\(|\\)|_|-)*.pdf\"") // "(W|D|S|_|-)*.pdf" - ex. L02-Android.pdf
     private lateinit var alertDialog: AlertDialog.Builder
 
     internal fun selectModule(modulesUrl: String) {
