@@ -103,9 +103,9 @@ class Downloader(private val mainActivity: WeakReference<MainActivity>, private 
 
                 // download is complete, show notification
                 mainActivity.get()?.showNotification(
-                    "Download Complete!",
+                    "Downloader Complete!",
                     "$title has been downloaded from $url.",
-                    "View Download", pIntent
+                    "View Downloader", pIntent
                 )
 
                 // get parcel fd from uri
@@ -118,7 +118,7 @@ class Downloader(private val mainActivity: WeakReference<MainActivity>, private 
                 }
 
                 // render downloaded pdf onto scroll view
-                Renderer(mainActivity, view).render(parcelFileDescriptor)
+                Renderer(mainActivity, view).render(title, parcelFileDescriptor)
             }
         }
 

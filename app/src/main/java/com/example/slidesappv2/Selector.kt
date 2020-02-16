@@ -18,7 +18,7 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import java.lang.ref.WeakReference
 
-class Selector(private val mainActivity: MainActivity, private val view: View) {
+class Selector(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
 
     private val longDuration = 5000 // five seconds
 
@@ -30,7 +30,7 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
 //    private val moduleRegex = Regex("\"\\w{2}\\d{4}\"") // "WWDDDD" - ex. CS3301
 //    private val lectureRegex =
 //        Regex("\"(\\w|\\d|\\s|\\(|\\)|_|-)*.pdf\"") // "(W|D|S|_|-)*.pdf" - ex. L02-Android.pdf
-    private var alertDialog = AlertDialog.Builder(mainActivity) // select window
+    private var alertDialog = AlertDialog.Builder(mainActivity.get()) // select window
 
     // select a current CS module from studRes
     internal fun selectModule(modulesUrl: String) {
@@ -58,12 +58,12 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
                 alertDialog.show()
             },
             Response.ErrorListener {
-                mainActivity.showToast("Failed to load modules: $it")
+                mainActivity.get()?.showToast("Failed to load modules: $it")
             }
         )
 
         // add http request to queue
-        Volley.newRequestQueue(mainActivity).add(stringRequest)
+        Volley.newRequestQueue(mainActivity.get()).add(stringRequest)
     }
 
     // select a lecture for a particular CS module
@@ -82,7 +82,7 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
                 // check if there are any lectures
                 // note: we are only looking within Lectures/, not recursively in the file system
                 if (array.isEmpty()) {
-                    mainActivity.showToast("No Lectures Found")
+                    mainActivity.get()?.showToast("No Lectures Found")
                     return@Listener
                 }
 
@@ -94,27 +94,27 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
                     val pdfURL = lecturesUrl + selected
 
                     // start downloading the selected lecture
-                    Downloader(WeakReference(mainActivity), view).downloadPDF(
+                    Downloader(mainActivity, view).downloadPDF(
                         pdfURL,
                         selected.toString()
                     )
 
                     // show snackbar to display selected module, option to open in browser
-                    mainActivity.showSnackbar(view, "Selected: $selected", longDuration,
+                    mainActivity.get()?.showSnackbar(view, "Selected: $selected", longDuration,
                         "VIEW IN BROWSER", View.OnClickListener {
                             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(pdfURL))
-                            mainActivity.startActivity(browserIntent)
+                            mainActivity.get()?.startActivity(browserIntent)
                         })
                 }
                 alertDialog.show()
             },
             Response.ErrorListener {
-                mainActivity.showToast("Failed to load lectures: $it")
+                mainActivity.get()?.showToast("Failed to load lectures: $it")
             }
         )
 
         // add http request to queue
-        Volley.newRequestQueue(mainActivity).add(stringRequest)
+        Volley.newRequestQueue(mainActivity.get()).add(stringRequest)
 
     }
 
@@ -134,8 +134,8 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
     companion object {
 
         // select an image
-        internal fun selectImage(imageView: ImageView, mainActivity: WeakReference<MainActivity>) {
-            mainActivity.get()?.enableShareButton(imageView)                // selected, so enable share button
+        internal fun selectImage(title: String, imageView: ImageView, mainActivity: WeakReference<MainActivity>) {
+            mainActivity.get()?.enableShareButton(title, imageView)                // selected, so enable share button
             imageView.setColorFilter(Color.LTGRAY, PorterDuff.Mode.DARKEN)  // selected, so "select" the image with a filter
             imageView.invalidate()
         }

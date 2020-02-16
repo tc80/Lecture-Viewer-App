@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     private val studRes = "https://studres.cs.st-andrews.ac.uk/"
     private val moneyID = "user_balance"
     private val shareCost = 25
-    private var initMoney = 100
+    private val initMoney = 250
     private var money = 0
 
     // ui elements
@@ -61,14 +61,14 @@ class MainActivity : AppCompatActivity() {
         moneyText = findViewById(R.id.money)
 
         // set click listeners
-        selectButton.setOnClickListener { Selector(this, it).selectModule(studRes) }
+        selectButton.setOnClickListener { Selector(WeakReference(this), it).selectModule(studRes) }
         resetButton.setOnClickListener { reset() }
 
         // get saved balance if it exists
         sharedPref = getPreferences(Context.MODE_PRIVATE)
         val balance = sharedPref.getInt(moneyID, initMoney)
 
-        earnMoney(balance)    // starting money
+        earnMoney(balance)      // starting money
         disableAdButton()       // disable ad button, start preparing ads
         reset()                 // reset to 'home' screen
     }
@@ -192,7 +192,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // enable the share button
-    internal fun enableShareButton(imageView: ImageView) {
+    internal fun enableShareButton(title: String, imageView: ImageView) {
         shareButton.setOnClickListener {
             if (money < shareCost) {
                 // insufficient funds!
@@ -212,10 +212,10 @@ class MainActivity : AppCompatActivity() {
             // enough money!
             Selector.deselectImage(imageView, WeakReference(this))
             val bitmap = imageView.drawToBitmap(Bitmap.Config.ARGB_8888)
-            Selector.selectImage(imageView, WeakReference(this))
+            Selector.selectImage(title, imageView, WeakReference(this))
             spendMoney(shareCost)
-            showToast("shared! (add this function boy)")
-            //shareImage(bitmap)
+            showToast("Shared! New balance is $money.")
+            Sharer(WeakReference(this)).shareSlide(title, bitmap)
         }
         shareButton.isEnabled = true
     }
@@ -269,7 +269,7 @@ class MainActivity : AppCompatActivity() {
     // disable ad button
     private fun disableAdButton() {
         watchButton.isEnabled = false
-        AdHandler(this).getNewAd() // starts loading next ad, enabling button on load
+        AdHandler(WeakReference(this)).getNewAd() // starts loading next ad, enabling button on load
     }
 
     // money update

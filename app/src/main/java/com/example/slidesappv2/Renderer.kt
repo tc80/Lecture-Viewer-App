@@ -19,7 +19,7 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
     private val undo = "UNDO"
 
     // render the pages of a downloaded pdf as bitmaps
-    internal fun render(parcelFileDescriptor: ParcelFileDescriptor) {
+    internal fun render(fileName: String, parcelFileDescriptor: ParcelFileDescriptor) {
 
         // enable reset button
         mainActivity.get()?.enableResetButton()
@@ -41,6 +41,7 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
         for (i in 0 until pageCount) {
             val page = renderer.openPage(i) // render the page
             val imageView = ImageView(mainActivity.get())
+            val slideTitle = "$fileName (Slide ${i+1})"
             imageView.id = i
             imageView.setPadding(10, 10, 10, 10)
 
@@ -78,7 +79,7 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
                     Selector.deselectImage(imageView, mainActivity)
                     mainActivity.get()?.showSnackbar(view, "Deselected slide ${i + 1}.", null, undo,
                         View.OnClickListener {
-                            Selector.selectImage(imageView, mainActivity)
+                            Selector.selectImage(slideTitle, imageView, mainActivity)
                             indexSelected = tempIndex
                         }
                     )
@@ -88,13 +89,13 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
                     images[indexSelected].clearColorFilter() // clear previous selection
                 }
                 indexSelected = i
-                Selector.selectImage(imageView, mainActivity)
+                Selector.selectImage(slideTitle, imageView, mainActivity)
                 mainActivity.get()?.showSnackbar(view, "Selected slide ${i + 1}.", null, undo,
                     View.OnClickListener {
                         Selector.deselectImage(imageView, mainActivity)
                         indexSelected = tempIndex
                         if (indexSelected != unselected) {
-                            Selector.selectImage(images[indexSelected], mainActivity)
+                            Selector.selectImage(slideTitle, images[indexSelected], mainActivity)
                         }
                     }
                 )
