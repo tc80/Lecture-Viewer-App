@@ -24,7 +24,7 @@ class Downloader(private val mainActivity: WeakReference<MainActivity>, private 
         val manager = mainActivity.get()?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val id = manager.enqueue(request)
 
-//        val progressBar = mainActivity.get()?.findViewById<ProgressBar>(R.id.progress)
+        val progressBar = mainActivity.get()?.findViewById<ProgressBar>(R.id.progress)
 //        progressBar?.setProgress(50, true)
 
 //        progressBar.

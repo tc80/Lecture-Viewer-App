@@ -13,29 +13,34 @@ import android.net.Uri
 import java.util.*
 import android.widget.*
 import androidx.core.view.drawToBitmap
-import kotlinx.android.synthetic.main.activity_main.view.*
-import android.content.ContentValues
-import android.provider.MediaStore
-import android.util.Log
-import android.view.WindowManager
 import android.widget.Button
-import java.io.OutputStream
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.InterstitialAd
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdCallback
 import java.lang.ref.WeakReference
 
 
 class MainActivity : AppCompatActivity() {
 
     private val studRes = "https://studres.cs.st-andrews.ac.uk/"
+    private val shareCost = 5
+    private var money = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        // ADMOB EARN REWARD BY WATCHING AN AD
-        // 15-25 random coins COINS PER AD?
-        //
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        findViewById<Button>(R.id.hide_ads).setOnClickListener{
+        earnMoney(100)
+        findViewById<Button>(R.id.watch_ad).setOnClickListener{
+
+
+            // ADMOB EARN REWARD BY WATCHING AN AD
+            // 15-25 random coins COINS PER AD?
+            //
+
+
             showToast("no")
         }
         findViewById<Button>(R.id.select_lecture).setOnClickListener{
@@ -53,6 +58,7 @@ class MainActivity : AppCompatActivity() {
         }
         deactivateResetButton()
         deactivateShareButton()
+        deactivateAdButton()
         hideProgress()
     }
 
@@ -123,8 +129,14 @@ class MainActivity : AppCompatActivity() {
     internal fun activateShareButton(imageView: ImageView) {
         val btn = findViewById<Button>(R.id.share_slide)
         btn.setOnClickListener{
+            if (money < shareCost) {
+                showToast("Sharing costs $shareCost coins. Insufficient funds.")
+                return@setOnClickListener
+            }
             Selector.deselectImage(imageView, WeakReference(this))
             val bitmap = imageView.drawToBitmap(Bitmap.Config.ARGB_8888)
+            Selector.selectImage(imageView, WeakReference(this))
+            spendMoney(shareCost)
             showToast("shared! (add this function boy)")
             //shareImage(bitmap)
         }
@@ -159,6 +171,34 @@ class MainActivity : AppCompatActivity() {
     private fun deactivateResetButton() {
         val btn = findViewById<Button>(R.id.reset)
         btn.isEnabled = false
+    }
+
+    internal fun activateAdButton(rewardedAd: RewardedAd, rewardCallback: RewardedAdCallback) {
+        val btn = findViewById<Button>(R.id.watch_ad)
+        btn.isEnabled = true
+        btn.setOnClickListener {
+            rewardedAd.show(null, rewardCallback)
+            deactivateAdButton()
+        }
+    }
+
+    private fun deactivateAdButton() {
+        // start loading next ad
+        // when loaded, activate ad button
+        val btn = findViewById<Button>(R.id.watch_ad)
+        btn.isEnabled = false
+        AdHandler(this).getNewAd()
+
+    }
+
+    private fun spendMoney(spent: Int) {
+        money -= spent
+        findViewById<TextView>(R.id.money).text = money.toString()
+    }
+
+    internal fun earnMoney(reward: Int) {
+        money += reward
+        findViewById<TextView>(R.id.money).text = money.toString()
     }
 
     private fun generateID(): Int {

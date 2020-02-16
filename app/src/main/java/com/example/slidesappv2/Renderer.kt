@@ -14,7 +14,7 @@ import android.widget.ScrollView
 import androidx.recyclerview.widget.RecyclerView
 import java.lang.ref.WeakReference
 import android.R.attr.button
-
+import androidx.core.view.setPadding
 
 
 class Renderer(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
@@ -37,7 +37,7 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
             val page = renderer.openPage(i)
             val imageView = ImageView(mainActivity.get())
             imageView.id = i
-            imageView.setPadding(10, 0, 10, 0)
+            imageView.setPadding(10, 10, 10, 10)
 
             if (page.width == 0 || page.height == 0 || scrollPane.width == 0 || scrollPane.height == 0) {
                 mainActivity.get()?.showToast("Slide $i is invalid, skipping....")
