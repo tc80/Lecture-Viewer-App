@@ -25,6 +25,7 @@ class Renderer(private val mainActivity: WeakReference<MainActivity>, private va
     internal fun render(parcelFileDescriptor: ParcelFileDescriptor) {
         mainActivity.get()?.activateResetButton()
         mainActivity.get()?.hideLogo()
+
         val renderer = PdfRenderer(parcelFileDescriptor)
         val scrollPane = mainActivity.get()?.findViewById<HorizontalScrollView>(R.id.scroll)!!
         val options = LinearLayout(mainActivity.get())

@@ -3,6 +3,7 @@ package com.example.slidesappv2
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -11,7 +12,15 @@ import com.google.android.material.snackbar.Snackbar
 import android.net.Uri
 import java.util.*
 import android.widget.*
+import androidx.core.view.drawToBitmap
 import kotlinx.android.synthetic.main.activity_main.view.*
+import android.content.ContentValues
+import android.provider.MediaStore
+import android.util.Log
+import android.view.WindowManager
+import android.widget.Button
+import java.io.OutputStream
+import java.lang.ref.WeakReference
 
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +28,11 @@ class MainActivity : AppCompatActivity() {
     private val studRes = "https://studres.cs.st-andrews.ac.uk/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // ADMOB EARN REWARD BY WATCHING AN AD
+        // 15-25 random coins COINS PER AD?
+        //
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<Button>(R.id.hide_ads).setOnClickListener{
@@ -35,9 +49,11 @@ class MainActivity : AppCompatActivity() {
             showLogo()
             deactivateResetButton()
             deactivateShareButton()
+            hideProgress()
         }
         deactivateResetButton()
         deactivateShareButton()
+        hideProgress()
     }
 
     private fun example1() {
@@ -107,9 +123,20 @@ class MainActivity : AppCompatActivity() {
     internal fun activateShareButton(imageView: ImageView) {
         val btn = findViewById<Button>(R.id.share_slide)
         btn.setOnClickListener{
-            showToast(imageView.toString())
+            Selector.deselectImage(imageView, WeakReference(this))
+            val bitmap = imageView.drawToBitmap(Bitmap.Config.ARGB_8888)
+            showToast("shared! (add this function boy)")
+            //shareImage(bitmap)
         }
         btn.isEnabled = true
+    }
+
+    internal fun showProgress() {
+        findViewById<ProgressBar>(R.id.progress).visibility = ProgressBar.VISIBLE
+    }
+
+    internal fun hideProgress() {
+        findViewById<ProgressBar>(R.id.progress).visibility = ProgressBar.INVISIBLE
     }
 
     internal fun hideLogo() {

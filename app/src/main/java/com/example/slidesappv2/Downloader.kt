@@ -9,7 +9,10 @@ import android.net.Uri
 import android.view.View
 import java.lang.ref.WeakReference
 import android.app.DownloadManager
+import android.widget.ProgressBar
 import android.R.string.no
+
+
 
 
 
@@ -20,6 +23,44 @@ class Downloader(private val mainActivity: WeakReference<MainActivity>, private 
             .setTitle(title)
         val manager = mainActivity.get()?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val id = manager.enqueue(request)
+
+//        val progressBar = mainActivity.get()?.findViewById<ProgressBar>(R.id.progress)
+//        progressBar?.setProgress(50, true)
+
+//        progressBar.
+//
+//        Thread(Runnable {
+//            var downloading = true
+//
+//            while (downloading) {
+//
+//                val q = DownloadManager.Query()
+//                q.setFilterById(downloadId)
+//
+//                val cursor = manager.query(q)
+//                cursor.moveToFirst()
+//                val bytes_downloaded = cursor.getInt(
+//                    cursor
+//                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+//                )
+//                val bytes_total =
+//                    cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+//
+//                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) === DownloadManager.STATUS_SUCCESSFUL) {
+//                    downloading = false
+//                }
+//
+//                val dl_progress = (bytes_downloaded / bytes_total * 100).toDouble()
+//
+//                runOnUiThread(Runnable { mProgressBar.progress = dl_progress.toInt() })
+//
+//                Log.d(Constants.MAIN_VIEW_ACTIVITY, statusMessage(cursor))
+//                cursor.close()
+//            }
+//        }).start()
+
+
+
 
 //        val query = DownloadManager.Query()
 //        query.setFilterById(id)
