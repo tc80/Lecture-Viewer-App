@@ -20,11 +20,12 @@ import android.widget.Button
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdCallback
 import java.lang.ref.WeakReference
-
+import android.content.SharedPreferences
 
 class MainActivity : AppCompatActivity() {
 
     private val studRes = "https://studres.cs.st-andrews.ac.uk/"
+    private val moneyID = "user_balance"
     private val shareCost = 25
     private var initMoney = 100
     private var money = 0
@@ -39,6 +40,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var logo: ImageView
     private lateinit var moneyText: TextView
+
+    // shared preferences to save state
+    private lateinit var sharedPref: SharedPreferences
 
     // called on activity start
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +64,11 @@ class MainActivity : AppCompatActivity() {
         selectButton.setOnClickListener { Selector(this, it).selectModule(studRes) }
         resetButton.setOnClickListener { reset() }
 
-        earnMoney(initMoney)    // starting money
+        // get saved balance if it exists
+        sharedPref = getPreferences(Context.MODE_PRIVATE)
+        val balance = sharedPref.getInt(moneyID, initMoney)
+
+        earnMoney(balance)    // starting money
         disableAdButton()       // disable ad button, start preparing ads
         reset()                 // reset to 'home' screen
     }
@@ -264,16 +272,21 @@ class MainActivity : AppCompatActivity() {
         AdHandler(this).getNewAd() // starts loading next ad, enabling button on load
     }
 
+    // money update
+    private fun moneyUpdate(newMoney: Int) {
+        money = newMoney
+        moneyText.text = newMoney.toString()
+        sharedPref.edit().putInt(moneyID, money).commit()
+    }
+
     // spend money
     private fun spendMoney(spent: Int) {
-        money -= spent
-        moneyText.text = money.toString()
+        moneyUpdate(money - spent)
     }
 
     // earn money
     internal fun earnMoney(reward: Int) {
-        money += reward
-        moneyText.text = money.toString()
+        moneyUpdate(money + reward)
     }
 
 }
