@@ -14,9 +14,6 @@ import java.util.*
 import android.widget.*
 import androidx.core.view.drawToBitmap
 import android.widget.Button
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.InterstitialAd
-import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdCallback
 import java.lang.ref.WeakReference
@@ -33,16 +30,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         earnMoney(100)
-        findViewById<Button>(R.id.watch_ad).setOnClickListener{
-
-
-            // ADMOB EARN REWARD BY WATCHING AN AD
-            // 15-25 random coins COINS PER AD?
-            //
-
-
-            showToast("no")
-        }
         findViewById<Button>(R.id.select_lecture).setOnClickListener{
             Selector(this, it).selectModule(studRes)
         }
@@ -145,10 +132,12 @@ class MainActivity : AppCompatActivity() {
 
     internal fun showProgress() {
         findViewById<ProgressBar>(R.id.progress).visibility = ProgressBar.VISIBLE
+        findViewById<ProgressBar>(R.id.spinner).visibility = ProgressBar.VISIBLE
     }
 
     internal fun hideProgress() {
         findViewById<ProgressBar>(R.id.progress).visibility = ProgressBar.INVISIBLE
+        findViewById<ProgressBar>(R.id.spinner).visibility = ProgressBar.INVISIBLE
     }
 
     internal fun hideLogo() {

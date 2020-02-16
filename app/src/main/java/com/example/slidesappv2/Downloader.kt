@@ -11,9 +11,11 @@ import java.lang.ref.WeakReference
 import android.app.DownloadManager
 import android.widget.ProgressBar
 import android.R.string.no
-
-
-
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.widget.HorizontalScrollView
+import android.widget.ImageView
+import kotlin.concurrent.thread
 
 
 class Downloader(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
@@ -24,40 +26,58 @@ class Downloader(private val mainActivity: WeakReference<MainActivity>, private 
         val manager = mainActivity.get()?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val id = manager.enqueue(request)
 
+        val scrollPane = mainActivity.get()?.findViewById<HorizontalScrollView>(R.id.scroll)!!
+        scrollPane.removeAllViews()
+
+        mainActivity.get()?.hideLogo()
+
+        val image = ImageView(mainActivity.get())
+        image.setImageBitmap(Bitmap.createBitmap(scrollPane.width, scrollPane.height, Bitmap.Config.ARGB_8888))
+        image.setBackgroundColor(Color.parseColor("#F0F0F0"))
+        scrollPane.addView(image)
+        scrollPane.invalidate()
+
         val progressBar = mainActivity.get()?.findViewById<ProgressBar>(R.id.progress)
+
+        mainActivity.get()?.showProgress()
 //        progressBar?.setProgress(50, true)
 
-//        progressBar.
-//
-//        Thread(Runnable {
-//            var downloading = true
-//
-//            while (downloading) {
-//
-//                val q = DownloadManager.Query()
-//                q.setFilterById(downloadId)
-//
-//                val cursor = manager.query(q)
-//                cursor.moveToFirst()
-//                val bytes_downloaded = cursor.getInt(
-//                    cursor
-//                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
-//                )
-//                val bytes_total =
-//                    cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-//
-//                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) === DownloadManager.STATUS_SUCCESSFUL) {
-//                    downloading = false
-//                }
-//
-//                val dl_progress = (bytes_downloaded / bytes_total * 100).toDouble()
-//
+        var downloading = true
+
+        thread {
+
+            while (downloading) {
+                println("HELLO")
+
+                val q = DownloadManager.Query()
+                q.setFilterById(id)
+
+                val cursor = manager.query(q)
+                cursor.moveToFirst()
+                val bytes_downloaded = cursor.getInt(
+                    cursor
+                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                )
+                val bytes_total =
+                    cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+
+                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) === DownloadManager.STATUS_SUCCESSFUL) {
+                    downloading = false
+                }
+
+                val dl_progress = ((bytes_downloaded * 100L).toDouble() / bytes_total)
+
+                progressBar?.progress = dl_progress.toInt()
+                progressBar?.invalidate()
+
+                println(dl_progress)
+
 //                runOnUiThread(Runnable { mProgressBar.progress = dl_progress.toInt() })
 //
 //                Log.d(Constants.MAIN_VIEW_ACTIVITY, statusMessage(cursor))
-//                cursor.close()
-//            }
-//        }).start()
+                cursor.close()
+            }
+        }
 
 
 
@@ -96,6 +116,8 @@ class Downloader(private val mainActivity: WeakReference<MainActivity>, private 
 
         val broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
+                downloading = false
+                mainActivity.get()?.hideProgress()
                 val uri = manager.getUriForDownloadedFile(id)
                 val readFileIntent = Intent(Intent.ACTION_VIEW)
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

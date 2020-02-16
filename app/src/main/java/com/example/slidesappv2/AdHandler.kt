@@ -19,26 +19,9 @@ class AdHandler(private val mainActivity: MainActivity) {
 
                 // enable button
                 val rewardCallback = object: RewardedAdCallback() {
-
                     override fun onUserEarnedReward(p0: RewardItem) {
-                       mainActivity.earnMoney(p0.amount)
-                    }
-
-                    override fun equals(other: Any?): Boolean {
-                        return super.equals(other)
-                    }
-
-                    override fun onRewardedAdFailedToShow(p0: Int) {
-                        super.onRewardedAdFailedToShow(p0)
-                    }
-
-                    override fun onRewardedAdClosed() {
-                        super.onRewardedAdClosed()
-                        //Toast.makeText(baseContext, "hello", Toast.LENGTH_SHORT).show()
-                    }
-
-                    override fun onRewardedAdOpened() {
-                        super.onRewardedAdOpened()
+                        mainActivity.earnMoney(p0.amount)
+                        mainActivity.showToast("You earned ${p0.amount}!")
                     }
                 }
 
