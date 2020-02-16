@@ -1,15 +1,18 @@
+/**
+ * Group 3 Android Demo (CS3301, 02/2020)
+ * @author 170006583
+ */
+
 package com.example.slidesappv2
 
 import android.app.*
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.NotificationCompat
 import com.google.android.material.snackbar.Snackbar
-import android.net.Uri
 import java.util.*
 import android.widget.*
 import androidx.core.view.drawToBitmap
@@ -22,78 +25,133 @@ import java.lang.ref.WeakReference
 class MainActivity : AppCompatActivity() {
 
     private val studRes = "https://studres.cs.st-andrews.ac.uk/"
-    private val shareCost = 5
+    private val shareCost = 25
+    private var initMoney = 100
     private var money = 0
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    // ui elements
+    private lateinit var selectButton: Button
+    private lateinit var shareButton: Button
+    private lateinit var resetButton: Button
+    private lateinit var watchButton: Button
+    private lateinit var scrollView: HorizontalScrollView
+    private lateinit var progressSpinner: ProgressBar
+    private lateinit var progressBar: ProgressBar
+    private lateinit var logo: ImageView
+    private lateinit var moneyText: TextView
 
+    // called on activity start
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        earnMoney(100)
-        findViewById<Button>(R.id.select_lecture).setOnClickListener{
-            Selector(this, it).selectModule(studRes)
-        }
-        val reset = findViewById<Button>(R.id.reset)
-        reset.setOnClickListener{
-            val scroll = findViewById<HorizontalScrollView>(R.id.scroll)
-            scroll.removeAllViews()
-            scroll.invalidate()
-            showLogo()
-            deactivateResetButton()
-            deactivateShareButton()
-            hideProgress()
-        }
-        deactivateResetButton()
-        deactivateShareButton()
-        deactivateAdButton()
+
+        // find and initialize ui elements
+        selectButton = findViewById(R.id.select_lecture)
+        shareButton = findViewById(R.id.share_slide)
+        resetButton = findViewById(R.id.reset)
+        watchButton = findViewById(R.id.watch_ad)
+        scrollView = findViewById(R.id.scroll)
+        progressSpinner = findViewById(R.id.spinner)
+        progressBar = findViewById(R.id.progress)
+        logo = findViewById(R.id.logo)
+        moneyText = findViewById(R.id.money)
+
+        // set click listeners
+        selectButton.setOnClickListener { Selector(this, it).selectModule(studRes) }
+        resetButton.setOnClickListener { reset() }
+
+        earnMoney(initMoney)    // starting money
+        disableAdButton()       // disable ad button, start preparing ads
+        reset()                 // reset to 'home' screen
+    }
+
+    // gets the scrollview
+    internal fun getScrollView(): HorizontalScrollView {
+        return scrollView
+    }
+
+    // gets the progress bar
+    internal fun getProgressBar(): ProgressBar {
+        return progressBar
+    }
+
+    // remove child inside scroll, repaint it
+    internal fun resetScrollView() {
+        scrollView.removeAllViews()
+        scrollView.invalidate()
+    }
+
+    // go back to 'home' screen
+    private fun reset() {
+        resetScrollView()
+        showLogo()
+        disableResetButton()
+        disableShareButton()
         hideProgress()
     }
 
-    private fun example1() {
-        // hello world toast
-        showToast("hello world")
-    }
+//    private fun example1() {
+//        // hello world toast
+//        showToast("hello world")
+//    }
+//
+//    private fun example2() {
+//        // snackbar without action
+//        findViewById<Button>(R.id.select_lecture).setOnClickListener { view ->
+//            showSnackbar(view, "my snackbar", null, null, null)
+//        }
+//    }
+//
+//    private fun example3() {
+//        // snackbar with action, also "it"
+//        findViewById<Button>(R.id.select_lecture).setOnClickListener {
+//            showSnackbar(
+//                it,
+//                "my snackbar with action",
+//                null,
+//                "display my toast",
+//                View.OnClickListener {
+//                    showToast("you displayed me")
+//                })
+//        }
+//    }
+//
+//    private fun example4() {
+//        findViewById<Button>(R.id.select_lecture).setOnClickListener {
+//            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://google.com"))
+//            val pIntent = PendingIntent.getActivity(this, 0, intent, 0)
+//            showNotification("Example 4", "Navigate to Google!", "Click me", pIntent)
+//        }
+//    }
 
-    private fun example2() {
-        // snackbar without action
-        findViewById<Button>(R.id.select_lecture).setOnClickListener{
-            view -> run {
-                showSnackbar(view, "my snackbar", null, null, null)
-            }
-        }
-    }
-
-    private fun example3() {
-        // snackbar with action, also "it"
-        findViewById<Button>(R.id.select_lecture).setOnClickListener{
-            showSnackbar(it, "my snackbar with action",null, "display my toast", View.OnClickListener {
-                showToast("you displayed me")
-            })
-        }
-    }
-
-    private fun example4() {
-        findViewById<Button>(R.id.select_lecture).setOnClickListener{
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://google.com"))
-            val pIntent = PendingIntent.getActivity(this, 0, intent, 0)
-            showNotification("Example 4", "Navigate to Google!", "Click me", pIntent)
-        }
-    }
-
+    // shows a toast
     internal fun showToast(text: String) {
         Toast
             .makeText(applicationContext, text, Toast.LENGTH_LONG)
             .show()
     }
 
-    internal fun showSnackbar(view: View, title: String, duration: Int?, actionTitle: String?, listener: View.OnClickListener?) {
+    // shows a snackbar
+    internal fun showSnackbar(
+        view: View,
+        title: String,
+        duration: Int?,
+        actionTitle: String?,
+        listener: View.OnClickListener?
+    ) {
         Snackbar
             .make(view, title, duration ?: Snackbar.LENGTH_LONG)
             .setAction(actionTitle, listener)
             .show()
     }
 
-    internal fun showNotification(title: String?, body: String?, actionTitle: String?, pIntent: PendingIntent) {
+    // shows a notification
+    internal fun showNotification(
+        title: String?,
+        body: String?,
+        actionTitle: String?,
+        pIntent: PendingIntent
+    ) {
         val nManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelID = "my_channel_id"
         val channelName = "my channel"
@@ -104,22 +162,46 @@ class MainActivity : AppCompatActivity() {
         val notification = NotificationCompat.Builder(this, channelID)
             .setSmallIcon(R.drawable.example_notification_icon)
             .setAutoCancel(true)
-            .addAction(NotificationCompat.Action(R.drawable.example_notification_icon, actionTitle, pIntent))
-            .setStyle(NotificationCompat.BigTextStyle()
-                .setBigContentTitle(title)
-                .bigText(body)
+            .addAction(
+                NotificationCompat.Action(
+                    R.drawable.example_notification_icon,
+                    actionTitle,
+                    pIntent
+                )
+            )
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .setBigContentTitle(title)
+                    .bigText(body)
             )
             .build()
         nManager.notify(generateID(), notification)
     }
 
-    internal fun activateShareButton(imageView: ImageView) {
-        val btn = findViewById<Button>(R.id.share_slide)
-        btn.setOnClickListener{
+    // generate a random id based on the time
+    private fun generateID(): Int {
+        return (Date().time / 1000).toInt() % Int.MAX_VALUE
+    }
+
+    // enable the share button
+    internal fun enableShareButton(imageView: ImageView) {
+        shareButton.setOnClickListener {
             if (money < shareCost) {
-                showToast("Sharing costs $shareCost coins. Insufficient funds.")
+                // insufficient funds!
+                showSnackbar(it,
+                    "Sharing costs $shareCost coins. Insufficient funds.",
+                    null,
+                    "LEARN MORE",
+                    View.OnClickListener {
+                        AlertDialog.Builder(this)
+                            .setTitle("How to Earn Coins")
+                            .setMessage("You can earn coins by watching ads! Note that you will only earn your reward if you watch the entire ad.")
+                            .show()
+                    }
+                )
                 return@setOnClickListener
             }
+            // enough money!
             Selector.deselectImage(imageView, WeakReference(this))
             val bitmap = imageView.drawToBitmap(Bitmap.Config.ARGB_8888)
             Selector.selectImage(imageView, WeakReference(this))
@@ -127,71 +209,71 @@ class MainActivity : AppCompatActivity() {
             showToast("shared! (add this function boy)")
             //shareImage(bitmap)
         }
-        btn.isEnabled = true
+        shareButton.isEnabled = true
     }
 
+    // disable share button
+    internal fun disableShareButton() {
+        shareButton.isEnabled = false
+    }
+
+    // show progress bars
     internal fun showProgress() {
-        findViewById<ProgressBar>(R.id.progress).visibility = ProgressBar.VISIBLE
-        findViewById<ProgressBar>(R.id.spinner).visibility = ProgressBar.VISIBLE
+        progressSpinner.visibility = ProgressBar.VISIBLE
+        progressBar.visibility = ProgressBar.VISIBLE
     }
 
+    // hide progress bars
     internal fun hideProgress() {
-        findViewById<ProgressBar>(R.id.progress).visibility = ProgressBar.INVISIBLE
-        findViewById<ProgressBar>(R.id.spinner).visibility = ProgressBar.INVISIBLE
+        progressSpinner.visibility = ProgressBar.INVISIBLE
+        progressBar.visibility = ProgressBar.INVISIBLE
     }
 
-    internal fun hideLogo() {
-        findViewById<ImageView>(R.id.logo).visibility = ImageView.INVISIBLE
-    }
-
+    // show st andrews logo
     private fun showLogo() {
-        findViewById<ImageView>(R.id.logo).visibility = ImageView.VISIBLE
+        logo.visibility = ImageView.VISIBLE
     }
 
-    internal fun deactivateShareButton() {
-        findViewById<Button>(R.id.share_slide).isEnabled = false
+    // hide st andrews logo
+    internal fun hideLogo() {
+        logo.visibility = ImageView.INVISIBLE
     }
 
-    internal fun activateResetButton() {
-        val btn = findViewById<Button>(R.id.reset)
-        btn.isEnabled = true
+    // enable reset button
+    internal fun enableResetButton() {
+        resetButton.isEnabled = true
     }
 
-    private fun deactivateResetButton() {
-        val btn = findViewById<Button>(R.id.reset)
-        btn.isEnabled = false
+    // disable reset button
+    private fun disableResetButton() {
+        resetButton.isEnabled = false
     }
 
-    internal fun activateAdButton(rewardedAd: RewardedAd, rewardCallback: RewardedAdCallback) {
-        val btn = findViewById<Button>(R.id.watch_ad)
-        btn.isEnabled = true
-        btn.setOnClickListener {
+    // enable ad button
+    internal fun enableAdButton(rewardedAd: RewardedAd, rewardCallback: RewardedAdCallback) {
+        watchButton.isEnabled = true
+        watchButton.setOnClickListener {
             rewardedAd.show(null, rewardCallback)
-            deactivateAdButton()
+            disableAdButton()
         }
     }
 
-    private fun deactivateAdButton() {
-        // start loading next ad
-        // when loaded, activate ad button
-        val btn = findViewById<Button>(R.id.watch_ad)
-        btn.isEnabled = false
-        AdHandler(this).getNewAd()
-
+    // disable ad button
+    private fun disableAdButton() {
+        watchButton.isEnabled = false
+        AdHandler(this).getNewAd() // starts loading next ad, enabling button on load
     }
 
+    // spend money
     private fun spendMoney(spent: Int) {
         money -= spent
-        findViewById<TextView>(R.id.money).text = money.toString()
+        moneyText.text = money.toString()
     }
 
+    // earn money
     internal fun earnMoney(reward: Int) {
         money += reward
-        findViewById<TextView>(R.id.money).text = money.toString()
-    }
-
-    private fun generateID(): Int {
-        return (Date().time / 1000).toInt() % Int.MAX_VALUE
+        moneyText.text = money.toString()
     }
 
 }

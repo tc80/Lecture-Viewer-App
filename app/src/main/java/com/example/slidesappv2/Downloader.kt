@@ -1,3 +1,8 @@
+/**
+ * Group 3 Android Demo (CS3301, 02/2020)
+ * @author 170006583
+ */
+
 package com.example.slidesappv2
 
 import android.app.*
@@ -9,137 +14,119 @@ import android.net.Uri
 import android.view.View
 import java.lang.ref.WeakReference
 import android.app.DownloadManager
-import android.widget.ProgressBar
-import android.R.string.no
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import kotlin.concurrent.thread
 
-
 class Downloader(private val mainActivity: WeakReference<MainActivity>, private val view: View) {
 
+    private val lightGray = "#F0F0F0"
+
+    // download a pdf with a title at a url
     internal fun downloadPDF(url: String, title: String) {
         val request = DownloadManager.Request(Uri.parse(url))
             .setTitle(title)
-        val manager = mainActivity.get()?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val manager =
+            mainActivity.get()?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val id = manager.enqueue(request)
 
-        val scrollPane = mainActivity.get()?.findViewById<HorizontalScrollView>(R.id.scroll)!!
-        scrollPane.removeAllViews()
-
+        // remove or hide elements where the progress bar will be, enable reset
+        mainActivity.get()?.resetScrollView()
         mainActivity.get()?.hideLogo()
 
-        val image = ImageView(mainActivity.get())
-        image.setImageBitmap(Bitmap.createBitmap(scrollPane.width, scrollPane.height, Bitmap.Config.ARGB_8888))
-        image.setBackgroundColor(Color.parseColor("#F0F0F0"))
-        scrollPane.addView(image)
-        scrollPane.invalidate()
+        // assuming scroll view is non-null
+        val scrollView = mainActivity.get()?.getScrollView()!!
 
-        val progressBar = mainActivity.get()?.findViewById<ProgressBar>(R.id.progress)
+        // create template where slides will go when loaded
+        val template = ImageView(mainActivity.get())
+        template.setImageBitmap(
+            Bitmap.createBitmap(
+                scrollView.width,
+                scrollView.height,
+                Bitmap.Config.ARGB_8888
+            )
+        )
+        template.setBackgroundColor(Color.parseColor(lightGray))
 
+        // add to scrollview
+        scrollView.addView(template)
+        scrollView.invalidate()
+
+        // assuming progress bar is non-null
+        val progressBar = mainActivity.get()?.getProgressBar()!!
         mainActivity.get()?.showProgress()
-//        progressBar?.setProgress(50, true)
 
+        // show progress bar loading until download is complete
         var downloading = true
 
         thread {
 
             while (downloading) {
-                println("HELLO")
 
-                val q = DownloadManager.Query()
-                q.setFilterById(id)
+                // create query for this download
+                val query = DownloadManager.Query().setFilterById(id)
+                val cursor = manager.query(query)
 
-                val cursor = manager.query(q)
-                cursor.moveToFirst()
-                val bytes_downloaded = cursor.getInt(
-                    cursor
-                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
-                )
-                val bytes_total =
-                    cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-
-                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) === DownloadManager.STATUS_SUCCESSFUL) {
-                    downloading = false
+                if (cursor.moveToFirst()) {
+                    // we have a result for the query
+                    val downloadedBytes =
+                        cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+                    val totalBytes =
+                        cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                    val progress = ((downloadedBytes).toDouble() / totalBytes) * 100
+                    progressBar.progress = progress.toInt()
+                    progressBar.invalidate()
                 }
 
-                val dl_progress = ((bytes_downloaded * 100L).toDouble() / bytes_total)
-
-                progressBar?.progress = dl_progress.toInt()
-                progressBar?.invalidate()
-
-                println(dl_progress)
-
-//                runOnUiThread(Runnable { mProgressBar.progress = dl_progress.toInt() })
-//
-//                Log.d(Constants.MAIN_VIEW_ACTIVITY, statusMessage(cursor))
-                cursor.close()
+                // close cursor if non-null
+                cursor ?: cursor.close()
             }
         }
 
-
-
-
-//        val query = DownloadManager.Query()
-//        query.setFilterById(id)
-//
-//        Thread.sleep(1000)
-//        val c = manager.query(query)
-//        if (c.moveToFirst()) {
-//            val sizeIndex = c.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
-//            val downloadedIndex = c.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
-//            val size = c.getInt(sizeIndex)
-//            val downloaded = c.getInt(downloadedIndex)
-//            var progress = 0.0
-//            if (size != -1) progress = downloaded * 100.0 / size
-//            println(sizeIndex)
-//            println(downloadedIndex)
-//            println(size)
-//            println(downloaded)
-//            println(progress)
-//            // At this point you have the progress as a percentage.
-//            mainActivity.get()?.showToast(progress.toString())
-//        } else {
-//            mainActivity.get()?.showToast("sad")
-//        }
-
-//        val query = DownloadManager.Query()
-//        query.setFilterByStatus(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
-//
-////        query.
-////            // progress bar async
-////        manager.query(DownloadManager.Query(
-////
-////        ))
-
+        // broadcast receiver used when download is complete
         val broadcastReceiver = object : BroadcastReceiver() {
+
+            // receiver has received its event
             override fun onReceive(context: Context?, intent: Intent?) {
+
+                // no longer downloading, hide progress bars
                 downloading = false
                 mainActivity.get()?.hideProgress()
+
+                // create intent to view downloaded file
                 val uri = manager.getUriForDownloadedFile(id)
                 val readFileIntent = Intent(Intent.ACTION_VIEW)
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     .setDataAndType(uri, "application/pdf")
                 val pIntent = PendingIntent.getActivity(mainActivity.get(), 0, readFileIntent, 0)
+
+                // download is complete, show notification
                 mainActivity.get()?.showNotification(
                     "Download Complete!",
                     "$title has been downloaded from $url.",
-                    "View Download", pIntent)
+                    "View Download", pIntent
+                )
 
-                val parcelFileDescriptor = mainActivity.get()?.contentResolver?.openFileDescriptor(uri, "r")
+                // get parcel fd from uri
+                val parcelFileDescriptor =
+                    mainActivity.get()?.contentResolver?.openFileDescriptor(uri, "r")
 
                 if (parcelFileDescriptor == null) {
                     mainActivity.get()?.showToast("Cannot find download $title.")
-                    return
+                    return // failed to get parcel fd
                 }
 
+                // render downloaded pdf onto scroll view
                 Renderer(mainActivity, view).render(parcelFileDescriptor)
             }
         }
 
-        mainActivity.get()?.registerReceiver(broadcastReceiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        // register receiver to action download event
+        mainActivity.get()?.registerReceiver(
+            broadcastReceiver,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        )
     }
 
 }
