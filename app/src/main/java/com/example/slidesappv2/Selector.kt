@@ -21,9 +21,15 @@ import java.lang.ref.WeakReference
 class Selector(private val mainActivity: MainActivity, private val view: View) {
 
     private val longDuration = 5000 // five seconds
-    private val moduleRegex = Regex("\"\\w{2}\\d{4}\"") // "WWDDDD" - ex. CS3301
+
+    private val moduleRegex = Regex(">\\w{2}\\d{4}<") // "WWDDDD" - ex. CS3301
     private val lectureRegex =
-        Regex("\"(\\w|\\d|\\s|\\(|\\)|_|-)*.pdf\"") // "(W|D|S|_|-)*.pdf" - ex. L02-Android.pdf
+        Regex(">(\\w|\\d|\\s|\\(|\\)|_|-)*.pdf<") // "(W|D|S|_|-)*.pdf" - ex. L02-Android.pdf
+
+
+//    private val moduleRegex = Regex("\"\\w{2}\\d{4}\"") // "WWDDDD" - ex. CS3301
+//    private val lectureRegex =
+//        Regex("\"(\\w|\\d|\\s|\\(|\\)|_|-)*.pdf\"") // "(W|D|S|_|-)*.pdf" - ex. L02-Android.pdf
     private var alertDialog = AlertDialog.Builder(mainActivity) // select window
 
     // select a current CS module from studRes
@@ -35,11 +41,10 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
             Request.Method.GET,
             modulesUrl,
             // called on http successful response
-            Response.Listener<String> { res ->
+            Response.Listener<String> {
 
                 // use module regex to find modules
-                val matches = moduleRegex.findAll(res).map { it.value.trim('\"') }
-                val array = sequenceToArray(matches)
+                val array = getMatches(moduleRegex, it)
 
                 // set modules as options
                 alertDialog.setItems(array) { _, which ->
@@ -69,11 +74,10 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
         val stringRequest = StringRequest(
             Request.Method.GET,
             lecturesUrl,
-            Response.Listener<String> { res ->
+            Response.Listener<String> {
 
                 // use lecture regex to find lectures
-                val matches = lectureRegex.findAll(res).map { it.value.trim('\"') }
-                val array = sequenceToArray(matches)
+                val array = getMatches(lectureRegex, it)
 
                 // check if there are any lectures
                 // note: we are only looking within Lectures/, not recursively in the file system
@@ -114,16 +118,18 @@ class Selector(private val mainActivity: MainActivity, private val view: View) {
 
     }
 
-    // convert a sequence to an array
-    // note: tried generics but Array<T> is not allowed in Kotlin
-    private fun sequenceToArray(sequence: Sequence<String>): Array<CharSequence?> {
-        val list = ArrayList<CharSequence>()
-        list.addAll(sequence)
-        val array = arrayOfNulls<CharSequence>(list.size)
-        list.toArray(array)
-        return array
-    }
+    // get matches using regex in a string
+    private fun getMatches(regex: Regex, content: String): Array<CharSequence?> {
+        // get matches for regex as Sequence<String>
+        val matchesSeq = regex.findAll(content).map { it.value.drop(1).dropLast(1) }
 
+        // convert Sequence<String> to Array<CharSequence?>
+        val list = ArrayList<CharSequence>()
+        list.addAll(matchesSeq)
+        val matchesArr = arrayOfNulls<CharSequence>(list.size)
+        list.toArray(matchesArr)
+        return matchesArr
+    }
 
     companion object {
 
