@@ -14,7 +14,9 @@ import java.lang.ref.WeakReference
 class Sharer(private val mainActivity: WeakReference<MainActivity>) {
 
     private val exportType = "image/png"
+    private val quality = 100 // max quality
 
+    // share a slide as a PNG
     fun shareSlide(title: String, bitmap: Bitmap) {
         val contentResolver = mainActivity.get()?.contentResolver
 
@@ -35,7 +37,7 @@ class Sharer(private val mainActivity: WeakReference<MainActivity>) {
 
         // write bitmap to output stream
         val out = contentResolver.openOutputStream(uri) ?: return
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out) // write to output stream
+        bitmap.compress(Bitmap.CompressFormat.PNG, quality, out) // write to output stream
         out.close()
 
         // share using chooser

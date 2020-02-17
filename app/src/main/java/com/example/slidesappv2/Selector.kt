@@ -24,12 +24,7 @@ class Selector(private val mainActivity: WeakReference<MainActivity>, private va
 
     private val moduleRegex = Regex(">\\w{2}\\d{4}<") // "WWDDDD" - ex. CS3301
     private val lectureRegex =
-        Regex(">(\\w|\\d|\\s|\\(|\\)|_|-)*.pdf<") // "(W|D|S|_|-)*.pdf" - ex. L02-Android.pdf
-
-
-//    private val moduleRegex = Regex("\"\\w{2}\\d{4}\"") // "WWDDDD" - ex. CS3301
-//    private val lectureRegex =
-//        Regex("\"(\\w|\\d|\\s|\\(|\\)|_|-)*.pdf\"") // "(W|D|S|_|-)*.pdf" - ex. L02-Android.pdf
+        Regex(">(\\w|\\d|\\s|_|-)*.pdf<") // "(W|D|S|_|-)*.pdf" - ex. L02-Android.pdf
     private var alertDialog = AlertDialog.Builder(mainActivity.get()) // select window
 
     // select a current CS module from studRes
@@ -134,9 +129,19 @@ class Selector(private val mainActivity: WeakReference<MainActivity>, private va
     companion object {
 
         // select an image
-        internal fun selectImage(title: String, imageView: ImageView, mainActivity: WeakReference<MainActivity>) {
-            mainActivity.get()?.enableShareButton(title, imageView)                // selected, so enable share button
-            imageView.setColorFilter(Color.LTGRAY, PorterDuff.Mode.DARKEN)  // selected, so "select" the image with a filter
+        internal fun selectImage(
+            title: String,
+            imageView: ImageView,
+            mainActivity: WeakReference<MainActivity>
+        ) {
+            mainActivity.get()?.enableShareButton(
+                title,
+                imageView
+            )                // selected, so enable share button
+            imageView.setColorFilter(
+                Color.LTGRAY,
+                PorterDuff.Mode.DARKEN
+            )  // selected, so "select" the image with a filter
             imageView.invalidate()
         }
 

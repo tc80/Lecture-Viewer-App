@@ -98,40 +98,6 @@ class MainActivity : AppCompatActivity() {
         hideProgress()
     }
 
-//    private fun example1() {
-//        // hello world toast
-//        showToast("hello world")
-//    }
-//
-//    private fun example2() {
-//        // snackbar without action
-//        findViewById<Button>(R.id.select_lecture).setOnClickListener { view ->
-//            showSnackbar(view, "my snackbar", null, null, null)
-//        }
-//    }
-//
-//    private fun example3() {
-//        // snackbar with action, also "it"
-//        findViewById<Button>(R.id.select_lecture).setOnClickListener {
-//            showSnackbar(
-//                it,
-//                "my snackbar with action",
-//                null,
-//                "display my toast",
-//                View.OnClickListener {
-//                    showToast("you displayed me")
-//                })
-//        }
-//    }
-//
-//    private fun example4() {
-//        findViewById<Button>(R.id.select_lecture).setOnClickListener {
-//            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://google.com"))
-//            val pIntent = PendingIntent.getActivity(this, 0, intent, 0)
-//            showNotification("Example 4", "Navigate to Google!", "Click me", pIntent)
-//        }
-//    }
-
     // shows a toast
     internal fun showToast(text: String) {
         Toast
@@ -158,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         title: String?,
         body: String?,
         actionTitle: String?,
-        pIntent: PendingIntent
+        pIntent: PendingIntent?
     ) {
         val nManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelID = "my_channel_id"

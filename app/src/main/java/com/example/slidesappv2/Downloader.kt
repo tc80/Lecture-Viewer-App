@@ -99,13 +99,15 @@ class Downloader(private val mainActivity: WeakReference<MainActivity>, private 
                 val readFileIntent = Intent(Intent.ACTION_VIEW)
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     .setDataAndType(uri, "application/pdf")
+
+                // pending intent to give permission to read file
                 val pIntent = PendingIntent.getActivity(mainActivity.get(), 0, readFileIntent, 0)
 
                 // download is complete, show notification
                 mainActivity.get()?.showNotification(
-                    "Downloader Complete!",
+                    "Download Complete!",
                     "$title has been downloaded from $url.",
-                    "View Downloader", pIntent
+                    "View Download", pIntent
                 )
 
                 // get parcel fd from uri
